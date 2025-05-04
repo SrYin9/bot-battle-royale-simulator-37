@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				split: '#4ADE80',
+				steal: '#F87171',
+				neutral: '#8E9196',
+				bot: {
+					purple: '#9b87f5',
+					blue: '#60A5FA',
+					green: '#4ADE80',
+					red: '#F87171',
+					yellow: '#FBBF24',
 				}
 			},
 			borderRadius: {
@@ -84,11 +95,44 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-split': {
+					'0%, 100%': { 
+						opacity: '1',
+						backgroundColor: 'rgba(74, 222, 128, 0.1)' 
+					},
+					'50%': { 
+						opacity: '0.8',
+						backgroundColor: 'rgba(74, 222, 128, 0.3)' 
+					}
+				},
+				'pulse-steal': {
+					'0%, 100%': { 
+						opacity: '1',
+						backgroundColor: 'rgba(248, 113, 113, 0.1)' 
+					},
+					'50%': { 
+						opacity: '0.8',
+						backgroundColor: 'rgba(248, 113, 113, 0.3)' 
+					}
+				},
+				'bounce-in': {
+					'0%': { transform: 'scale(0.8)', opacity: '0' },
+					'50%': { transform: 'scale(1.05)' },
+					'100%': { transform: 'scale(1)', opacity: '1' }
+				},
+				'slide-up': {
+					'0%': { transform: 'translateY(20px)', opacity: '0' },
+					'100%': { transform: 'translateY(0)', opacity: '1' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-split': 'pulse-split 2s infinite ease-in-out',
+				'pulse-steal': 'pulse-steal 2s infinite ease-in-out',
+				'bounce-in': 'bounce-in 0.5s ease-out',
+				'slide-up': 'slide-up 0.5s ease-out'
 			}
 		}
 	},
