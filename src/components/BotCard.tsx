@@ -2,14 +2,16 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Bot } from '@/lib/gameLogic';
+import { QuestionMark } from 'lucide-react';
 
 interface BotCardProps {
   bot: Bot;
   selected: boolean;
   onClick: () => void;
+  isMystery?: boolean;
 }
 
-const BotCard: React.FC<BotCardProps> = ({ bot, selected, onClick }) => {
+const BotCard: React.FC<BotCardProps> = ({ bot, selected, onClick, isMystery = false }) => {
   return (
     <Card 
       className={`w-full cursor-pointer transition-all duration-200 hover:shadow-md ${
@@ -17,8 +19,11 @@ const BotCard: React.FC<BotCardProps> = ({ bot, selected, onClick }) => {
       }`}
       onClick={onClick}
     >
-      <CardHeader className={`${bot.color || 'bg-neutral'} rounded-t-lg text-white`}>
-        <CardTitle className="text-lg">{bot.name}</CardTitle>
+      <CardHeader className={`${isMystery ? 'bg-neutral' : bot.color || 'bg-neutral'} rounded-t-lg text-white`}>
+        <CardTitle className="text-lg flex items-center gap-2">
+          {isMystery && <QuestionMark className="h-5 w-5" />}
+          {bot.name}
+        </CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
         <CardDescription className="mb-2 text-xs">{bot.description}</CardDescription>
