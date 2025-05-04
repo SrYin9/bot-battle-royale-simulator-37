@@ -23,6 +23,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, selected, onClick, isMystery = f
         <CardTitle className="text-lg flex items-center gap-2">
           {isMystery && <HelpCircle className="h-5 w-5" />}
           {bot.name}
+          {selected && isMystery && " (Selected)"}
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-4">

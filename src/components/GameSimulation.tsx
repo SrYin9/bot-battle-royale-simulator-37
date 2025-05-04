@@ -24,6 +24,7 @@ const GameSimulation: React.FC<GameSimulationProps> = ({
   const [bot1Score, setBot1Score] = useState(0);
   const [bot2Score, setBot2Score] = useState(0);
   const [lastResult, setLastResult] = useState<MatchResult | null>(null);
+  const [isPlayerGame, setIsPlayerGame] = useState(false);
 
   // Update scores when match history changes
   useEffect(() => {
@@ -34,12 +35,15 @@ const GameSimulation: React.FC<GameSimulationProps> = ({
       setBot1Score(newBot1Score);
       setBot2Score(newBot2Score);
       setLastResult(matchHistory[matchHistory.length - 1]);
+      
+      // Check if this is a player game (human vs bot)
+      setIsPlayerGame(bot1?.id === 'mystery' || bot1?.id === 'quick-play');
     } else {
       setBot1Score(0);
       setBot2Score(0);
       setLastResult(null);
     }
-  }, [matchHistory]);
+  }, [matchHistory, bot1]);
 
   if (!bot1 || !bot2) {
     return (
@@ -68,7 +72,7 @@ const GameSimulation: React.FC<GameSimulationProps> = ({
           <div className="grid grid-cols-3 gap-4 items-center">
             <div className="text-center space-y-2">
               <div className={`text-lg font-bold ${bot1?.color?.replace('bg-', 'text-') || ''}`}>
-                {bot1.name}
+                {isPlayerGame ? 'You' : bot1.name}
               </div>
               <div className="text-3xl font-bold">{bot1Score}</div>
               {lastResult && (
@@ -105,14 +109,46 @@ const GameSimulation: React.FC<GameSimulationProps> = ({
               )}
             </div>
           </div>
+          
+          {/* Opponent's last move display for player games */}
+          {isPlayerGame && lastResult && (
+            <div className="mt-6 p-4 bg-muted rounded-lg">
+              <h3 className="text-center font-medium mb-2">Opponent's Last Move</h3>
+              <div className="flex items-center justify-center gap-4">
+                <div className={`text-lg font-bold ${lastResult.bot2Move === 'split' ? 'text-split' : 'text-steal'}`}>
+                  {lastResult.bot2Move === 'split' ? 'SPLIT' : 'STEAL'}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {lastResult.bot2Move === 'split' 
+                    ? "Your opponent chose to cooperate!" 
+                    : "Your opponent chose to defect!"}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Round summary for player games */}
+          {isPlayerGame && lastResult && (
+            <div className="mt-4 text-center">
+              <div className="text-sm font-medium">
+                {lastResult.bot1Move === 'split' && lastResult.bot2Move === 'split'
+                  ? "Both chose to SPLIT: You each get 3 points!"
+                  : lastResult.bot1Move === 'split' && lastResult.bot2Move === 'steal'
+                  ? "You chose SPLIT, opponent chose STEAL: They get 5 points, you get 0."
+                  : lastResult.bot1Move === 'steal' && lastResult.bot2Move === 'split'
+                  ? "You chose STEAL, opponent chose SPLIT: You get 5 points, they get 0."
+                  : "Both chose to STEAL: You each get 1 point."}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className={`${bot1?.color || ''} text-white`}>
           <CardContent className="p-6">
-            <h3 className="text-xl font-bold mb-2">{bot1?.name}</h3>
-            <p className="opacity-80">{bot1?.description}</p>
+            <h3 className="text-xl font-bold mb-2">{isPlayerGame ? 'You' : bot1?.name}</h3>
+            <p className="opacity-80">{isPlayerGame ? 'You are playing against the bot. Make your moves wisely!' : bot1?.description}</p>
           </CardContent>
         </Card>
         
