@@ -24,6 +24,7 @@ const Index = () => {
   const [mysteryBot, setMysteryBot] = useState<Bot | null>(null);
   const [waitingForPlayerMove, setWaitingForPlayerMove] = useState(false);
   const [playerLastMove, setPlayerLastMove] = useState<Move | undefined>(undefined);
+  const [quickPlay, setQuickPlay] = useState(false);
   
   // Bot histories
   const [bot1History, setBot1History] = useState<('split' | 'steal')[]>([]);
@@ -37,6 +38,7 @@ const Index = () => {
       setSelectedBot2(bot);
     }
     setPlayerMode(false);
+    setQuickPlay(false);
   };
 
   // Handle selecting mystery bot
@@ -53,6 +55,7 @@ const Index = () => {
     setSelectedBot1(mysteryBotPlaceholder);
     setSelectedBot2(null);
     setPlayerMode(true);
+    setQuickPlay(false);
 
     // Randomly select a real bot as the mystery opponent
     const randomIndex = Math.floor(Math.random() * availableBots.length);
@@ -64,9 +67,52 @@ const Index = () => {
     });
   };
   
+  // Handle selecting quick play against random bot (20 rounds)
+  const handleQuickPlay = () => {
+    // Create a quick play bot placeholder
+    const quickPlayBotPlaceholder: Bot = {
+      id: 'quick-play',
+      name: 'Quick Play Challenge',
+      description: 'Play a quick 20-round game against a randomly selected bot.',
+      strategy: () => 'split', // Placeholder strategy, will be replaced
+      color: 'bg-primary'
+    };
+
+    setSelectedBot1(quickPlayBotPlaceholder);
+    setSelectedBot2(null);
+    setPlayerMode(true);
+    setQuickPlay(true);
+    setTotalRounds(20);
+
+    // Randomly select a real bot as the opponent
+    const randomIndex = Math.floor(Math.random() * availableBots.length);
+    setMysteryBot(availableBots[randomIndex]);
+    
+    toast({
+      title: "Quick Play Challenge!",
+      description: "Play 20 rounds against a randomly selected bot. Make your first move!"
+    });
+
+    // Auto-start the game
+    startQuickPlay();
+  };
+  
+  // Start quick play
+  const startQuickPlay = () => {
+    if (!mysteryBot) return;
+    
+    setIsRunning(true);
+    setCurrentRound(0);
+    setMatchHistory([]);
+    setBot1History([]);
+    setBot2History([]);
+    setShowResults(false);
+    setWaitingForPlayerMove(true);
+  };
+  
   // Run a full simulation between selected bots
   const startSimulation = () => {
-    if (playerMode) {
+    if (playerMode || quickPlay) {
       if (!mysteryBot) {
         toast({
           title: "Error",
@@ -94,6 +140,7 @@ const Index = () => {
         return;
       }
       
+      setTotalRounds(100); // Reset to default for bot vs bot
       setIsRunning(true);
       setCurrentRound(0);
       setMatchHistory([]);
@@ -113,11 +160,12 @@ const Index = () => {
     setShowResults(false);
     setWaitingForPlayerMove(false);
     setPlayerLastMove(undefined);
+    setTotalRounds(100); // Reset to default
   };
   
   // Run tournament with all bots
   const runFullTournament = () => {
-    if (playerMode && mysteryBot) {
+    if ((playerMode || quickPlay) && mysteryBot) {
       // Reveal the mystery bot
       toast({
         title: "Mystery Bot Revealed!",
@@ -180,7 +228,7 @@ const Index = () => {
   
   // Run a single round when simulation is active
   useEffect(() => {
-    if (!isRunning || playerMode) return;
+    if (!isRunning || playerMode || quickPlay) return;
     if (!selectedBot1 || !selectedBot2) return;
     
     const timer = setTimeout(() => {
@@ -210,11 +258,11 @@ const Index = () => {
 
   // Check if player game is finished
   useEffect(() => {
-    if (playerMode && isRunning && currentRound >= totalRounds) {
+    if ((playerMode || quickPlay) && isRunning && currentRound >= totalRounds) {
       setIsRunning(false);
       runFullTournament();
     }
-  }, [currentRound, totalRounds, playerMode, isRunning]);
+  }, [currentRound, totalRounds, playerMode, quickPlay, isRunning]);
   
   return (
     <div className="container mx-auto py-8 px-4">
@@ -230,6 +278,21 @@ const Index = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-bold">Bot 1</h2>
           <div className="grid grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2">
+            {/* Quick Play Option */}
+            <BotCard 
+              key="quick-play"
+              bot={{
+                id: 'quick-play',
+                name: 'Quick Play Challenge (20 rounds)',
+                description: 'Play a quick 20-round game against a randomly selected bot. Choose your strategy!',
+                strategy: () => 'split',
+                color: 'bg-primary'
+              }}
+              selected={quickPlay}
+              onClick={handleQuickPlay}
+              isMystery={true}
+            />
+            
             {/* Mystery Bot Option */}
             <BotCard 
               key="mystery-bot"
@@ -240,7 +303,7 @@ const Index = () => {
                 strategy: () => 'split',
                 color: 'bg-neutral'
               }}
-              selected={playerMode}
+              selected={playerMode && !quickPlay}
               onClick={handleSelectMysteryBot}
               isMystery={true}
             />
@@ -249,7 +312,7 @@ const Index = () => {
               <BotCard 
                 key={`bot1-${bot.id}`}
                 bot={bot}
-                selected={selectedBot1?.id === bot.id && !playerMode}
+                selected={selectedBot1?.id === bot.id && !playerMode && !quickPlay}
                 onClick={() => handleSelectBot(bot, 1)}
               />
             ))}
@@ -266,7 +329,7 @@ const Index = () => {
             matchHistory={matchHistory}
           />
           
-          {playerMode && (
+          {(playerMode || quickPlay) && (
             <div className="mt-6">
               <PlayerControls 
                 onMove={handlePlayerMove} 
@@ -282,7 +345,7 @@ const Index = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-bold">Bot 2</h2>
           <div className="grid grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2">
-            {!playerMode && availableBots.map(bot => (
+            {!playerMode && !quickPlay && availableBots.map(bot => (
               <BotCard 
                 key={`bot2-${bot.id}`}
                 bot={bot}
@@ -291,9 +354,11 @@ const Index = () => {
               />
             ))}
             
-            {playerMode && (
+            {(playerMode || quickPlay) && (
               <div className="text-center p-6 text-muted-foreground">
-                You are playing against the mystery bot!
+                {quickPlay 
+                  ? "You are playing a 20-round quick challenge!"
+                  : "You are playing against the mystery bot!"}
               </div>
             )}
           </div>

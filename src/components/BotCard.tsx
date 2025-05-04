@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Bot } from '@/lib/gameLogic';
-import { QuestionMark } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 interface BotCardProps {
   bot: Bot;
@@ -21,7 +21,7 @@ const BotCard: React.FC<BotCardProps> = ({ bot, selected, onClick, isMystery = f
     >
       <CardHeader className={`${isMystery ? 'bg-neutral' : bot.color || 'bg-neutral'} rounded-t-lg text-white`}>
         <CardTitle className="text-lg flex items-center gap-2">
-          {isMystery && <QuestionMark className="h-5 w-5" />}
+          {isMystery && <HelpCircle className="h-5 w-5" />}
           {bot.name}
         </CardTitle>
       </CardHeader>
