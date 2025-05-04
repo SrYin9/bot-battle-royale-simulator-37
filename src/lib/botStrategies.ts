@@ -15,10 +15,20 @@ const PAYOFFS_ORIGINAL = {
 
 // Function to introduce a 5% chance of messing up the move
 const applyError = (move: Move): Move => {
-    if (random.float() < 0.05) { // 5% chance of error
+    if (Math.random() < 0.05) { // 5% chance of error
         return move === 'split' ? 'steal' : 'split';
     }
     return move;
+};
+
+// Helper function for random boolean
+const randomBoolean = (): boolean => {
+    return Math.random() < 0.5;
+};
+
+// Helper function for random float between 0 and 1
+const randomFloat = (): number => {
+    return Math.random();
 };
 
 // Define bot strategies
@@ -37,7 +47,7 @@ export const forgivingTitForTat10: BotStrategy = (botHistory, opponentHistory) =
     if (!opponentHistory.length) {
         return 'split';
     }
-    if (opponentHistory[opponentHistory.length - 1] === 'steal' && random.float() > 0.1) {
+    if (opponentHistory[opponentHistory.length - 1] === 'steal' && randomFloat() > 0.1) {
         return 'steal';
     }
     return 'split';
@@ -47,7 +57,7 @@ export const forgivingTitForTat30: BotStrategy = (botHistory, opponentHistory) =
     if (!opponentHistory.length) {
         return 'split';
     }
-    if (opponentHistory[opponentHistory.length - 1] === 'steal' && random.float() > 0.3) {
+    if (opponentHistory[opponentHistory.length - 1] === 'steal' && randomFloat() > 0.3) {
         return 'steal';
     }
     return 'split';
@@ -57,14 +67,14 @@ export const forgivingTitForTat50: BotStrategy = (botHistory, opponentHistory) =
     if (!opponentHistory.length) {
         return 'split';
     }
-    if (opponentHistory[opponentHistory.length - 1] === 'steal' && random.float() > 0.5) {
+    if (opponentHistory[opponentHistory.length - 1] === 'steal' && randomFloat() > 0.5) {
         return 'steal';
     }
     return 'split';
 };
 
 export const generousBot: BotStrategy = () => {
-    return random.float() < 0.8 ? 'split' : 'steal';
+    return randomFloat() < 0.8 ? 'split' : 'steal';
 };
 
 export const cautiousBot: BotStrategy = (botHistory, opponentHistory) => {
@@ -86,7 +96,8 @@ export const bully: BotStrategy = (botHistory, opponentHistory) => {
 
 export const exploiter: BotStrategy = (botHistory, opponentHistory) => {
     if (botHistory.length < 3) {
-        return ['split', 'steal', 'split'][botHistory.length];
+        const moves: Move[] = ['split', 'steal', 'split'];
+        return moves[botHistory.length];
     }
     if (!opponentHistory.slice(0, 3).includes('steal')) {
         return 'steal';
@@ -123,7 +134,7 @@ export const adaptiveTitForTat: BotStrategy = (botHistory, opponentHistory) => {
 };
 
 export const randomBot: BotStrategy = () => {
-    return random.boolean() ? 'split' : 'steal';
+    return randomBoolean() ? 'split' : 'steal';
 };
 
 export const alternator: BotStrategy = (botHistory) => {
@@ -132,7 +143,8 @@ export const alternator: BotStrategy = (botHistory) => {
 
 export const detective: BotStrategy = (botHistory, opponentHistory) => {
     if (botHistory.length < 4) {
-        return ['split', 'steal', 'split', 'split'][botHistory.length];
+        const moves: Move[] = ['split', 'steal', 'split', 'split'];
+        return moves[botHistory.length];
     }
     if (opponentHistory.slice(0, 4).includes('steal')) {
         return titForTat(botHistory, opponentHistory);
@@ -146,7 +158,7 @@ export const generousPavlov: BotStrategy = (botHistory, opponentHistory) => {
     }
     const lastMove = botHistory[botHistory.length - 1];
     const lastScore = PAYOFFS[lastMove][opponentHistory[opponentHistory.length - 1]][0];
-    if (lastScore >= 3 || random.float() < 0.2) {
+    if (lastScore >= 3 || randomFloat() < 0.2) {
         return lastMove;
     }
     return lastMove === 'split' ? 'steal' : 'split';
@@ -156,7 +168,7 @@ export const cautiousForgiver: BotStrategy = (botHistory, opponentHistory) => {
     if (opponentHistory.length >= 2 && 
         opponentHistory[opponentHistory.length - 1] === 'steal' && 
         opponentHistory[opponentHistory.length - 2] === 'steal') {
-        return random.float() < 0.1 ? 'split' : 'steal';
+        return randomFloat() < 0.1 ? 'split' : 'steal';
     }
     return 'split';
 };
@@ -173,13 +185,13 @@ export const hopefulBot: BotStrategy = (botHistory, opponentHistory) => {
 
 export const adaptiveGenerousBot: BotStrategy = (botHistory, opponentHistory) => {
     if (!opponentHistory.length) {
-        return random.float() < 0.8 ? 'split' : 'steal';
+        return randomFloat() < 0.8 ? 'split' : 'steal';
     }
     const cooperationRate = opponentHistory.filter(move => move === 'split').length / opponentHistory.length;
     if (cooperationRate > 0.6) {
-        return random.float() < 0.9 ? 'split' : 'steal';
+        return randomFloat() < 0.9 ? 'split' : 'steal';
     }
-    return random.float() < 0.5 ? 'split' : 'steal';
+    return randomFloat() < 0.5 ? 'split' : 'steal';
 };
 
 export const persistentBully: BotStrategy = (botHistory, opponentHistory) => {
@@ -194,7 +206,8 @@ export const persistentBully: BotStrategy = (botHistory, opponentHistory) => {
 
 export const sneakyExploiter: BotStrategy = (botHistory, opponentHistory) => {
     if (botHistory.length < 5) {
-        return ['split', 'steal', 'split', 'steal', 'split'][botHistory.length];
+        const moves: Move[] = ['split', 'steal', 'split', 'steal', 'split'];
+        return moves[botHistory.length];
     }
     if (!opponentHistory.slice(0, 5).includes('steal')) {
         return 'steal';
@@ -214,7 +227,7 @@ export const aggressiveAlternator: BotStrategy = (botHistory, opponentHistory) =
 
 export const learningBot: BotStrategy = (botHistory, opponentHistory) => {
     if (opponentHistory.length < 10) {
-        return random.float() < 0.6 ? 'split' : 'steal';
+        return randomFloat() < 0.6 ? 'split' : 'steal';
     }
     const recentCooperation = opponentHistory.slice(-10).filter(move => move === 'split').length / 10;
     return recentCooperation > 0.6 ? 'split' : 'steal';
@@ -239,24 +252,25 @@ export const titForTwoTats: BotStrategy = (botHistory, opponentHistory) => {
 };
 
 export const randomForgiver: BotStrategy = () => {
-    return random.float() < 0.3 || random.boolean() ? 'split' : 'steal';
+    return randomFloat() < 0.3 || randomBoolean() ? 'split' : 'steal';
 };
 
 export const chaoticBot: BotStrategy = (botHistory, opponentHistory) => {
     if (!opponentHistory.length) {
-        return random.boolean() ? 'split' : 'steal';
+        return randomBoolean() ? 'split' : 'steal';
     }
     if (opponentHistory.filter(move => move === 'steal').length / opponentHistory.length > 0.5) {
         return 'steal';
     }
-    return random.boolean() ? 'split' : 'steal';
+    return randomBoolean() ? 'split' : 'steal';
 };
 
 export const forgivingDetective: BotStrategy = (botHistory, opponentHistory) => {
     if (botHistory.length < 4) {
-        return ['split', 'steal', 'split', 'split'][botHistory.length];
+        const moves: Move[] = ['split', 'steal', 'split', 'split'];
+        return moves[botHistory.length];
     }
-    if (opponentHistory.slice(0, 4).includes('steal') && random.float() < 0.2) {
+    if (opponentHistory.slice(0, 4).includes('steal') && randomFloat() < 0.2) {
         return 'split';
     }
     return 'steal';
@@ -266,7 +280,7 @@ export const adaptiveGrudger: BotStrategy = (botHistory, opponentHistory) => {
     if (opponentHistory.length >= 2 && 
         opponentHistory[opponentHistory.length - 1] === 'steal' && 
         opponentHistory[opponentHistory.length - 2] === 'steal') {
-        return random.float() < 0.1 ? 'split' : 'steal';
+        return randomFloat() < 0.1 ? 'split' : 'steal';
     }
     return 'split';
 };
@@ -279,7 +293,7 @@ export const probingTitForTat: BotStrategy = (botHistory, opponentHistory) => {
 };
 
 export const forgivingProbingTitForTat10: BotStrategy = (botHistory, opponentHistory) => {
-    if (botHistory.length % 10 === 0 && random.float() < 0.1) {
+    if (botHistory.length % 10 === 0 && randomFloat() < 0.1) {
         return 'split';
     }
     return titForTat(botHistory, opponentHistory);
@@ -300,7 +314,7 @@ export const deceptiveTitForTat: BotStrategy = (botHistory, opponentHistory) => 
         return 'split';
     }
     const move = opponentHistory[opponentHistory.length - 1];
-    return random.float() < 0.1 ? 'steal' : move;
+    return randomFloat() < 0.1 ? 'steal' : move;
 };
 
 export const aggressivePavlov: BotStrategy = (botHistory, opponentHistory) => {
@@ -316,12 +330,13 @@ export const aggressivePavlov: BotStrategy = (botHistory, opponentHistory) => {
 };
 
 export const randomDefector: BotStrategy = () => {
-    return random.float() < 0.8 ? 'steal' : 'split';
+    return randomFloat() < 0.8 ? 'steal' : 'split';
 };
 
 export const greedyProber: BotStrategy = (botHistory, opponentHistory) => {
     if (botHistory.length < 5) {
-        return ['split', 'steal', 'split', 'steal', 'split'][botHistory.length];
+        const moves: Move[] = ['split', 'steal', 'split', 'steal', 'split'];
+        return moves[botHistory.length];
     }
     if (!opponentHistory.slice(0, 5).includes('steal')) {
         return 'steal';
@@ -333,7 +348,7 @@ export const forgivingGrudger: BotStrategy = (botHistory, opponentHistory) => {
     if (opponentHistory.length >= 2 && 
         opponentHistory[opponentHistory.length - 1] === 'steal' && 
         opponentHistory[opponentHistory.length - 2] === 'steal') {
-        return random.float() < 0.2 ? 'split' : 'steal';
+        return randomFloat() < 0.2 ? 'split' : 'steal';
     }
     return 'split';
 };
@@ -356,12 +371,13 @@ export const cautiousTitForTat: BotStrategy = (botHistory, opponentHistory) => {
 };
 
 export const generousAlternator: BotStrategy = (botHistory) => {
-    return random.float() < 0.8 ? 'split' : (botHistory.length % 2 === 0 ? 'split' : 'steal');
+    return randomFloat() < 0.8 ? 'split' : (botHistory.length % 2 === 0 ? 'split' : 'steal');
 };
 
 export const trustingProber: BotStrategy = (botHistory, opponentHistory) => {
     if (botHistory.length < 3) {
-        return ['split', 'steal', 'split'][botHistory.length];
+        const moves: Move[] = ['split', 'steal', 'split'];
+        return moves[botHistory.length];
     }
     if (opponentHistory.slice(0, 3).includes('steal')) {
         return 'split';
@@ -375,9 +391,9 @@ export const adaptiveCooperator: BotStrategy = (botHistory, opponentHistory) => 
     }
     const cooperationRate = opponentHistory.filter(move => move === 'split').length / opponentHistory.length;
     if (cooperationRate > 0.6) {
-        return random.float() < 0.9 ? 'split' : 'steal';
+        return randomFloat() < 0.9 ? 'split' : 'steal';
     }
-    return random.float() < 0.5 ? 'split' : 'steal';
+    return randomFloat() < 0.5 ? 'split' : 'steal';
 };
 
 export const hopefulTitForTat: BotStrategy = (botHistory, opponentHistory) => {
@@ -391,14 +407,14 @@ export const forgivingHopefulTitForTat10: BotStrategy = (botHistory, opponentHis
     if (botHistory.length < 3) {
         return 'split';
     }
-    if (opponentHistory[opponentHistory.length - 1] === 'steal' && random.float() < 0.1) {
+    if (opponentHistory[opponentHistory.length - 1] === 'steal' && randomFloat() < 0.1) {
         return 'split';
     }
     return opponentHistory[opponentHistory.length - 1];
 };
 
 export const forgivingAlternator: BotStrategy = (botHistory, opponentHistory) => {
-    if (opponentHistory.length >= 1 && opponentHistory[opponentHistory.length - 1] === 'steal' && random.float() < 0.3) {
+    if (opponentHistory.length >= 1 && opponentHistory[opponentHistory.length - 1] === 'steal' && randomFloat() < 0.3) {
         return 'split';
     }
     return botHistory.length % 2 === 0 ? 'split' : 'steal';
@@ -408,7 +424,7 @@ export const trustingTitForTat: BotStrategy = (botHistory, opponentHistory) => {
     if (!opponentHistory.length) {
         return 'split';
     }
-    if (opponentHistory[opponentHistory.length - 1] === 'steal' && random.float() < 0.2) {
+    if (opponentHistory[opponentHistory.length - 1] === 'steal' && randomFloat() < 0.2) {
         return 'split';
     }
     return opponentHistory[opponentHistory.length - 1];
@@ -420,24 +436,25 @@ export const adaptiveForgiver: BotStrategy = (botHistory, opponentHistory) => {
     }
     const defectionRate = opponentHistory.filter(move => move === 'steal').length / opponentHistory.length;
     const forgivenessRate = defectionRate > 0.5 ? 0.1 : 0.5;
-    if (opponentHistory[opponentHistory.length - 1] === 'steal' && random.float() < forgivenessRate) {
+    if (opponentHistory[opponentHistory.length - 1] === 'steal' && randomFloat() < forgivenessRate) {
         return 'split';
     }
-    return random.float() < 0.8 ? 'split' : 'steal';
+    return randomFloat() < 0.8 ? 'split' : 'steal';
 };
 
 export const generousGrudger: BotStrategy = (botHistory, opponentHistory) => {
     if (opponentHistory.length >= 2 && 
         opponentHistory[opponentHistory.length - 1] === 'steal' && 
         opponentHistory[opponentHistory.length - 2] === 'steal') {
-        return random.float() < 0.5 ? 'split' : 'steal';
+        return randomFloat() < 0.5 ? 'split' : 'steal';
     }
     return 'split';
 };
 
 export const optimisticProber: BotStrategy = (botHistory, opponentHistory) => {
     if (botHistory.length < 3) {
-        return ['split', 'steal', 'split'][botHistory.length];
+        const moves: Move[] = ['split', 'steal', 'split'];
+        return moves[botHistory.length];
     }
     if (opponentHistory.slice(0, 3).includes('steal')) {
         return 'split';
@@ -456,7 +473,7 @@ export const persistentAlternator: BotStrategy = (botHistory, opponentHistory) =
 
 export const deceptiveGrudger: BotStrategy = (botHistory, opponentHistory) => {
     if (opponentHistory.includes('steal')) {
-        return random.float() < 0.1 ? 'split' : 'steal';
+        return randomFloat() < 0.1 ? 'split' : 'steal';
     }
     return 'split';
 };
@@ -474,7 +491,7 @@ export const greedyPavlov: BotStrategy = (botHistory, opponentHistory) => {
 };
 
 export const randomExploiter: BotStrategy = () => {
-    return random.float() < 0.7 ? 'steal' : 'split';
+    return randomFloat() < 0.7 ? 'steal' : 'split';
 };
 
 export const sneakyGrudger: BotStrategy = (botHistory, opponentHistory) => {
@@ -492,21 +509,22 @@ export const adaptiveDefector: BotStrategy = (botHistory, opponentHistory) => {
     }
     const cooperationRate = opponentHistory.filter(move => move === 'split').length / opponentHistory.length;
     if (cooperationRate > 0.6) {
-        return random.float() < 0.9 ? 'steal' : 'split';
+        return randomFloat() < 0.9 ? 'steal' : 'split';
     }
-    return random.float() < 0.5 ? 'steal' : 'split';
+    return randomFloat() < 0.5 ? 'steal' : 'split';
 };
 
 export const chaoticAlternator: BotStrategy = (botHistory, opponentHistory) => {
     if (opponentHistory.length && opponentHistory.filter(move => move === 'steal').length / opponentHistory.length > 0.6) {
         return 'steal';
     }
-    return random.boolean() ? 'split' : 'steal';
+    return randomBoolean() ? 'split' : 'steal';
 };
 
 export const aggressiveProber: BotStrategy = (botHistory, opponentHistory) => {
     if (botHistory.length < 4) {
-        return ['split', 'steal', 'split', 'steal'][botHistory.length];
+        const moves: Move[] = ['split', 'steal', 'split', 'steal'];
+        return moves[botHistory.length];
     }
     if (!opponentHistory.slice(0, 4).includes('steal')) {
         return 'steal';
