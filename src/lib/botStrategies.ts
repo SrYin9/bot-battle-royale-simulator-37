@@ -1,5 +1,17 @@
 import { Move, BotStrategy, PAYOFFS, Bot } from './gameLogic';
-import random from 'random';
+
+// Helper functions for random operations (replacing the random library)
+const randomFloat = (): number => {
+  return Math.random();
+};
+
+const randomBoolean = (): boolean => {
+  return Math.random() < 0.5;
+};
+
+const randomChoice = <T>(arr: T[]): T => {
+  return arr[Math.floor(Math.random() * arr.length)];
+};
 
 // Define the payoff matrix
 const PAYOFFS_ORIGINAL = {
@@ -15,20 +27,10 @@ const PAYOFFS_ORIGINAL = {
 
 // Function to introduce a 5% chance of messing up the move
 const applyError = (move: Move): Move => {
-    if (Math.random() < 0.05) { // 5% chance of error
+    if (randomFloat() < 0.05) { // 5% chance of error
         return move === 'split' ? 'steal' : 'split';
     }
     return move;
-};
-
-// Helper function for random boolean
-const randomBoolean = (): boolean => {
-    return Math.random() < 0.5;
-};
-
-// Helper function for random float between 0 and 1
-const randomFloat = (): number => {
-    return Math.random();
 };
 
 // Define bot strategies
