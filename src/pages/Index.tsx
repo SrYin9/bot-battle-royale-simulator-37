@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import GameHeader from '@/components/GameHeader';
 import GameSimulation from '@/components/GameSimulation';
@@ -268,7 +267,7 @@ const Index = () => {
     <div className="container mx-auto py-8 px-4">
       <GameHeader 
         title="Bot Battle Royale Simulator" 
-        subtitle="Watch AI strategies compete in the classic Split or Steal dilemma. Who will emerge victorious?"
+        subtitle="Watch bot strategies compete in the classic Split or Steal dilemma. Who will emerge victorious?"
         onStart={startSimulation}
         onReset={resetSimulation}
         isRunning={isRunning}
